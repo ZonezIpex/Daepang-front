@@ -1,0 +1,6 @@
+// [Quiz] 생성된 퀴즈 풀기/채점(모의)
+import React,{useEffect,useState}from"react";import{useParams}from"react-router-dom";import{api}from"../api/mock";import{QuizSession}from"../types";
+export default function Quiz(){const{noteId}=useParams();const[s,setS]=useState<QuizSession|null>(null);
+useEffect(()=>{if(noteId)api.generateQuiz(noteId).then(setS)},[noteId]);if(!s)return(<div className="container section"><div className="card">퀴즈 생성 중...</div></div>);
+const set=(i:number,v:number)=>setS(prev=>!prev?prev:{...prev,userAnswers:prev.userAnswers.map((x,idx)=>idx===i?v:x)});
+return(<div className="container section"><h2>퀴즈</h2><div className="card">{s.items.map((it,i)=>(<div key={it.id} style={{marginBottom:12}}><div style={{fontWeight:700,marginBottom:6}}>{i+1}. {it.question}</div><div style={{display:"grid",gap:6}}>{it.choices.map((c,idx)=>(<label key={idx} className="card" style={{padding:8,display:"flex",gap:8,alignItems:"center"}}><input type="radio" name={`q${i}`} checked={s.userAnswers[i]===idx} onChange={()=>set(i,idx)}/>{c}</label>))}</div></div>))}<button className="btn btn-primary" onClick={async()=>{if(!s)return;const r=await api.gradeQuiz(s);alert(`점수: ${r.score}점`)}}>채점</button></div></div>)}
